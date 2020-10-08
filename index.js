@@ -1,19 +1,24 @@
 const mysql = require("mysql");
-const inquirer = require("inquirer")
+const inquirer = require("inquirer");
+const cTable = require("console.table");
+const chalk = require("chalk");
+
+const prompts = require("./Assets/scripts/prompts");
+const Database = require("./Assets/Scripts/connection");
 
 // ANCHOR MySQL
-let connection = mysql.createConnection({
-    host: "localhost",
-    port: 3306,
-    user: "root",
-    password: "123",
-    database: "team_payroll_DB"
-});
+let database = new Database();
+console.log("connection port: ", database.port);
 
-connection.connect(err => {
+database.connection.connect(err => {
     if (err) throw err;
-    console.log("Connected as id " + connection.threadId);
+    console.log("Connected as id " + database.connection.threadId);
 });
 
 // ANCHOR Inquiry
 
+async function init () {
+    // await inquirer.prompt(prompts.mainPrompt);
+}
+
+init();
