@@ -38,7 +38,7 @@ Database.prototype.logAll = function () {
 }
 
 Database.prototype.update = function () {
-    
+        
 }
 
 Database.prototype.delete = function () {
