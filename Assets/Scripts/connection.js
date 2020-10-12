@@ -1,6 +1,7 @@
 const mysql = require("mysql");
 const cTable = require("console.table");
 const chalk = require("chalk");
+const util = require("util");
 
 function Database () {
     this.connection = mysql.createConnection({
@@ -12,15 +13,26 @@ function Database () {
     });
 }
 
+// Creating a new static database that will be this modules export
+const db = new Database();
+// Creating a custom Async Query
+const query = util.promisify(db.connection.query.bind(db.connection));
+
 Database.prototype.create = function () {
 
 }
 
-Database.prototype.read = function (table) {
-    this.connection.query("SELECT " + table, (err, res) => {
-        if (err) throw err;
-        console.log("Selected: ", res);
-    });
+Database.prototype.read = async function (table) {
+    let result;
+    await query("SELECT * FROM " + table)
+        .then((res) => {
+            console.log("res: ", res);
+            result = res;
+        })
+        .catch((err) => {
+            console.log("ERROR! ", err);
+        });
+    return result;
 }
 
 // Log everything into a table
@@ -38,7 +50,7 @@ Database.prototype.logAll = function () {
 }
 
 Database.prototype.update = function () {
-        
+    
 }
 
 Database.prototype.delete = function () {
@@ -62,4 +74,4 @@ function convertSqlDataToFormattedObject(dataArray) {
     return formattedEmployees;
 }
 
-module.exports = Database;
+module.exports = db;

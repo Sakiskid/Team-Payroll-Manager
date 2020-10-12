@@ -7,9 +7,7 @@ const prompts = require("./Assets/scripts/prompts");
 const Database = require("./Assets/Scripts/connection");
 
 // ANCHOR MySQL
-let database = new Database();
-
-database.connection.connect(err => {
+Database.connection.connect(err => {
     if (err) throw err;
     // console.debug("[DEBUG] Connected as id " + database.connection.threadId, "on port ", database.connection.port);
 
