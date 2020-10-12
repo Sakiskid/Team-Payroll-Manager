@@ -6,7 +6,7 @@ USE team_payroll_DB;
 
 CREATE TABLE departments (
     id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(30),
+    department_name VARCHAR(30),
     PRIMARY KEY (id)
 );
 
@@ -27,7 +27,7 @@ CREATE TABLE employees (
     PRIMARY KEY (id)
 );
 
-INSERT INTO departments (name)
+INSERT INTO departments (department_name)
 VALUES ("Assets"), ("Coding"), ("Marketing");
 
 INSERT INTO roles (title, salary, department_id)

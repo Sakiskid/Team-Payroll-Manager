@@ -8,17 +8,18 @@ const Database = require("./Assets/Scripts/connection");
 
 // ANCHOR MySQL
 let database = new Database();
-console.log("connection port: ", database.port);
 
 database.connection.connect(err => {
     if (err) throw err;
-    console.log("Connected as id " + database.connection.threadId);
+    // console.debug("[DEBUG] Connected as id " + database.connection.threadId, "on port ", database.connection.port);
+
+
 });
 
 // ANCHOR Inquiry
 
 async function init () {
-    // await inquirer.prompt(prompts.mainPrompt);
+    await prompts.startTitlePrompt();
 }
 
 init();
