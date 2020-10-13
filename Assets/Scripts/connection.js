@@ -26,7 +26,6 @@ Database.prototype.read = async function (table) {
     let result;
     await query("SELECT * FROM " + table)
         .then((res) => {
-            console.log("res: ", res);
             result = res;
         })
         .catch((err) => {
@@ -36,16 +35,17 @@ Database.prototype.read = async function (table) {
 }
 
 // Log everything into a table
-Database.prototype.logAll = function () {
-    this.connection.query(
+Database.prototype.logAll = async function () {
+    await query(
         `SELECT employees.first_name, employees.last_name, roles.title, roles.salary, departments.department_name
             FROM employees INNER JOIN roles 
             ON employees.role_id = roles.id 
-            INNER JOIN departments ON roles.department_id = departments.id;`, 
-        (err, res) => {
-            if (err) throw err;
+            INNER JOIN departments ON roles.department_id = departments.id;`
+    ).then(res => {
             let formatted = convertSqlDataToFormattedObject(res);
             console.table(formatted);
+    }).catch(err => {
+        console.error("ERROR! ", err);
     });
 }
 
@@ -61,7 +61,7 @@ function convertSqlDataToFormattedObject(dataArray) {
     let formattedEmployees = [];
 
     for (let employee of dataArray) {
-        console.log("Employee: ", employee);
+        // console.log("Employee: ", employee);
         let newEmployee = {
             "First Name": employee.first_name,
             "Last Name": employee.last_name,

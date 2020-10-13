@@ -19,8 +19,9 @@ const titlePrompt = [
 
 const employeePrompt = [
     {
-        name: "main",
+        name: "employee",
         type: "list",
+        message: style.question("Please select an employee"),
         choices: async() => {
             let employees = await Database.read("employees");
             let choices = [];
@@ -30,6 +31,17 @@ const employeePrompt = [
             }
             return choices;
         }
+    },  
+    {
+        name: "modify",
+        type: "list",
+        message: style.question("Please modify employee:"),
+        choices: [
+            {name: "Change Position", value: "position"},
+            {name: "Change Manager", value: "manager"},
+            {name: "DELETE", value: "delete"},
+            {name: "<- Go Back", value: "cancel"},
+        ]
     }
 ]
 
@@ -40,6 +52,7 @@ const departmentPrompt = [
 const positionPrompt = [
 
 ]
+
 //
 
 //
@@ -47,11 +60,16 @@ const positionPrompt = [
 //
 
 async function startEmployeePrompt() {
-    await inquirer.prompt(employeePrompt);
+    await inquirer.prompt(employeePrompt)
+    .then(answers => {
+        let employee, modify = answers;
+        
+    });
 }
 
 exports.startTitlePrompt = async() => {
     style.clear();
+    await Database.logAll();
     await inquirer.prompt(titlePrompt).then(answers => {
         if(answers.main === "View Employees") {
             startEmployeePrompt();
