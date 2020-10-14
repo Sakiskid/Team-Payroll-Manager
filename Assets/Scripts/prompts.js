@@ -124,13 +124,13 @@ async function startEmployeePrompt() {
     .then(answers => {
         let {employee: employeeId, modify} = answers;
         switch (modify) {
-            case "position": 
+            case "position":
                 // List positions and their department, then change employee
-            case "manager": 
+            case "manager":
                 // List managers in the current department, with an option to change departments
-            case "delete": 
+            case "delete":
                 // Delete this employee from the database
-                Database.delete(employeeId);
+                Database.delete(employeeId, "employees");
             case "cancel": 
                 // Cancel, go back to selecting employees
         }
