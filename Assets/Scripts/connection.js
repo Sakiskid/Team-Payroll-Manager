@@ -16,7 +16,7 @@ function Database () {
 // Creating a new static database that will be this modules export
 const db = new Database();
 // Creating a custom Async Query
-const query = util.promisify(db.connection.query.bind(db.connection));
+const asyncQuery = util.promisify(db.connection.query.bind(db.connection));
 
 Database.prototype.create = function () {
 
@@ -24,7 +24,7 @@ Database.prototype.create = function () {
 
 Database.prototype.read = async function (table) {
     let result;
-    await query("SELECT * FROM ??", [table])
+    await asyncQuery("SELECT * FROM ??", [table])
         .then((res) => {
             result = res;
         })
@@ -34,9 +34,25 @@ Database.prototype.read = async function (table) {
     return result;
 }
 
+Database.prototype.readAndJoinRoleWithDepartment = async function () {
+    let result;
+    let query = `SELECT departments.department_name, roles.title
+                    FROM departments
+                    INNER JOIN roles
+                    ON roles.department_id = departments.id
+                    ORDER BY departments.department_name`;
+    await asyncQuery(query)
+    .then(res => {
+        result = res;
+    }).catch(err => {
+        if (err) throw err;
+    });
+    return result;
+}
+
 // Log everything into a table
 Database.prototype.logAll = async function () {
-    await query(
+    await asyncQuery(
         `SELECT employees.first_name, employees.last_name, roles.title, roles.salary, departments.department_name
             FROM employees INNER JOIN roles 
             ON employees.role_id = roles.id 
@@ -54,7 +70,7 @@ Database.prototype.update = function () {
 }
 
 Database.prototype.delete = async function (id, table) {
-    await query("DELETE FROM ?? WHERE id = ?", [table, id], (err, res) => {
+    await asyncQuery("DELETE FROM ?? WHERE id = ?", [table, id], (err, res) => {
         if(err) throw err;
     })
 }

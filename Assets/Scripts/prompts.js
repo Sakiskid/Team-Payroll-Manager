@@ -24,6 +24,40 @@ const titlePrompt = [
     }
 ]
 
+const newEmployeePrompt = [
+    {
+        name: "firstName",
+        type: "input",
+        message: "Please input employee's first name: ",
+    },
+    {
+        name: "lastName",
+        type: "input",
+        message: "Please input employee's last name: ",
+    },
+    {
+        name: "position",
+        type: "list",
+        message: "Please select which position this employee has in the company: ",
+        choices: async() => { return await listRolesWithDepartments(); },
+    },
+    {
+        name: "manager",
+        type: "list",
+        message: "Does this employee have a manager?",
+        choices: async() => {
+            let choices = [];
+            // Add Separator
+            choices.push(new inquirer.Separator());
+            // Add "NO MANAGER" option
+            choices.push({
+                name: "NO MANAGER",
+                value: false
+            })
+        }
+    },
+]
+
 const employeePrompt = [
     {
         name: "employee",
@@ -49,6 +83,12 @@ const employeePrompt = [
         choices: async () => { return await listRoles(); },
         when: (answers) => { if (answers.modify === "position") return true; },
     }, 
+    {
+        name: "newManager",
+        type: "list",
+        choices: async (answers) => { return await listManagers(answers.employee); },
+        when: (answers) => { if (answers.modify === "manager") return true; }
+    },
     {
         name: "deleteConfirm",
         type: "confirm",
@@ -166,6 +206,30 @@ async function listRoles() {
     return choices;
 }
 
+async function listRolesWithDepartments() {
+    let roles = await Database.readAndJoinRoleWithDepartment();
+    let choices = [];
+    for(let role of roles) {
+        let newChoice = {
+            name: role.department_name + " || " + role.title,
+            value: role.id,
+        }
+        choices.push(newChoice);
+    }
+    return choices;
+}
+
+async function listManagers(employeeId) {
+    // TODO list managers
+}
+
+async function startNewEmployeePrompt() {
+    await inquirer.prompt(newEmployeePrompt)
+    .then(answers => {
+        console.log(answers);
+    });
+}
+
 async function startEmployeePrompt() {
     await inquirer.prompt(employeePrompt)
     .then(answers => {
@@ -211,14 +275,24 @@ exports.startTitlePrompt = async() => {
     style.clear();
     await Database.logAll();
     await inquirer.prompt(titlePrompt).then(answers => {
-        if(answers.main === "View Employees") {
-            startEmployeePrompt();
-        }
-        else if (answers.main === "View Departments") {
-            startDepartmentPrompt();
-        }
-        else if (answers.main === "View Positions") {
-            startPositionPrompt();
+        switch(answers.main) {
+            case "Add Employee":
+                startNewEmployeePrompt();
+                break;
+            case "View Employees":
+                startEmployeePrompt();
+                break;
+            case "Add Department":
+                
+                break;
+            case "View Departments":
+                startDepartmentPrompt();
+                break;
+            case "Add Position":
+                break;
+            case "View Positions":
+                startPositionPrompt();
+                break;
         }
     });
 }
