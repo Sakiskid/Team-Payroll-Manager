@@ -144,6 +144,18 @@ Database.prototype.deleteDepartment = async function (id) {
     })
 }
 
+Database.prototype.getBudgetInDepartment = async function (department_id) {
+    let query = `SELECT COUNT(*) AS budget FROM `;
+    let result;
+    await asyncQuery(query, [department_id])
+    .then((res) => {
+        result = res;
+    }).catch(err => {
+        throw err;
+    })
+    return result;
+}
+
 function convertSqlDataToFormattedObject(dataArray) {
     let formattedEmployees = [];
 

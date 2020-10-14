@@ -281,8 +281,8 @@ async function listDepartments() {
 }
 
 async function listManagers(employeeId) {
-    let managers;
-
+    let managers = await Database.getManagersInDepartment();
+    let choices = []
 
 
     return managers;
