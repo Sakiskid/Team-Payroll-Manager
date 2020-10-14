@@ -38,7 +38,7 @@ Database.prototype.createDepartment = async function (department_name){
 }
 
 Database.prototype.createRole = async function (title, salary, department_id){
-    await asyncQuery("INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)", [title])
+    await asyncQuery("INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)", [title, salary, department_id])
     .then(res => {
 
     }).catch(err => {
