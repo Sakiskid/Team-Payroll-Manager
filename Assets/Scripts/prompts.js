@@ -26,34 +26,37 @@ const titlePrompt = [
 
 const newEmployeePrompt = [
     {
-        name: "firstName",
+        name: "first_name",
         type: "input",
         message: "Please input employee's first name: ",
     },
     {
-        name: "lastName",
+        name: "last_name",
         type: "input",
         message: "Please input employee's last name: ",
     },
     {
-        name: "position",
+        name: "role_id",
         type: "list",
         message: "Please select which position this employee has in the company: ",
         choices: async() => { return await listRolesWithDepartments(); },
     },
     {
-        name: "manager",
+        name: "manager_id",
         type: "list",
         message: "Does this employee have a manager?",
         choices: async() => {
             let choices = [];
+            // Add Employees from this department
+            // choices.push(await listManagers());
             // Add Separator
             choices.push(new inquirer.Separator());
             // Add "NO MANAGER" option
             choices.push({
                 name: "NO MANAGER",
-                value: false
+                value: null
             })
+            return choices;
         }
     },
 ]
@@ -220,13 +223,23 @@ async function listRolesWithDepartments() {
 }
 
 async function listManagers(employeeId) {
+    let managers;
+
+
+
+    return managers;
     // TODO list managers
+
 }
 
 async function startNewEmployeePrompt() {
     await inquirer.prompt(newEmployeePrompt)
     .then(answers => {
         console.log(answers);
+        Database.createEmployee(answers.first_name, answers.last_name, answers.role_id, answers.manager_id);
+    })
+    .then(() => {
+        startTitlePrompt();
     });
 }
 
@@ -271,7 +284,7 @@ async function startPositionPrompt() {
     });
 }
 
-exports.startTitlePrompt = async() => {
+async function startTitlePrompt () {
     style.clear();
     await Database.logAll();
     await inquirer.prompt(titlePrompt).then(answers => {
@@ -296,3 +309,5 @@ exports.startTitlePrompt = async() => {
         }
     });
 }
+
+exports.startTitlePrompt = startTitlePrompt();
