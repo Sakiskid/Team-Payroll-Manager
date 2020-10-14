@@ -53,8 +53,8 @@ Database.prototype.update = function () {
     
 }
 
-Database.prototype.delete = function () {
-
+Database.prototype.delete = function (id) {
+    console.log("deleting employee ID: ", id);
 }
 
 function convertSqlDataToFormattedObject(dataArray) {

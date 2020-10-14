@@ -30,10 +30,13 @@ const employeePrompt = [
         type: "list",
         message: style.question("Please select an employee"),
         choices: async() => {
-            let employees = Database.read("employees");
+            let employees = await Database.read("employees");
             let choices = [];
             for (let employee of employees) {
-                let newChoice = employee.first_name + " " + employee.last_name;
+                let newChoice = {
+                    name: employee.first_name + " " + employee.last_name,
+                    value: employee.id,
+                } 
                 choices.push(newChoice);
             }
             return choices;
@@ -119,7 +122,7 @@ const positionPrompt = [
 async function startEmployeePrompt() {
     await inquirer.prompt(employeePrompt)
     .then(answers => {
-        let employee, modify = answers;
+        let employeeId, modify = answers;
         switch (modify) {
             case "position": 
                 // List positions and their department, then change employee
@@ -127,6 +130,7 @@ async function startEmployeePrompt() {
                 // List managers in the current department, with an option to change departments
             case "delete": 
                 // Delete this employee from the database
+                connection.delete(employeeId);
             case "cancel": 
                 // Cancel, go back to selecting employees
         }
