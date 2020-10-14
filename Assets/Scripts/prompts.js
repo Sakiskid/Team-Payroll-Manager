@@ -53,6 +53,16 @@ const employeePrompt = [
             {name: "DELETE", value: "delete"},
             {name: "<- Go Back", value: "cancel"},
         ]
+    },    
+    {
+        name: "deleteConfirm",
+        type: "confirm",
+        message: (answers) => {
+            return style.confirm("Are you sure you want to delete ", style.confirm(answers.employee))
+        },
+        when: (answers) => {
+            if (answers.modify === "delete") return true;
+        }
     }
 ]
 
@@ -110,14 +120,34 @@ const positionPrompt = [
             {name: "DELETE", value: "delete"},
             {name: "< Go Back", value: "cancel"},
         ]
+    },
+    {
+        name: "deleteConfirm",
+        type: "confirm",
+        message: style.confirm("Are you sure you want to delete this?"),
+        when: (answers) => {
+            if (answers.positionChosen === "delete") return true;
+        }
     }
 ]
+
+const confirmPrompt = {
+    name: "confirm",
+    type: "confirm",
+    message: style.confirm("Are you sure you want to delete this?")
+}
 
 //
 
 //
 // Functions
 //
+
+async function confirm() {
+    let answers = await inquirer.prompt(confirmPrompt);
+    if(answers.confirm === true) {return true;}
+    else if (answers.confirm === false) {return false;}
+}
 
 async function startEmployeePrompt() {
     await inquirer.prompt(employeePrompt)
@@ -130,9 +160,15 @@ async function startEmployeePrompt() {
                 // List managers in the current department, with an option to change departments
             case "delete":
                 // Delete this employee from the database
-                Database.delete(employeeId, "employees");
+                if(answers.deleteConfirm === true) {
+                    Database.delete(employeeId, "employees");
+                } else {
+                    startEmployeePrompt();
+                    break;
+                }
             case "cancel": 
                 // Cancel, go back to selecting employees
+                startEmployeePrompt();
         }
     });
 }

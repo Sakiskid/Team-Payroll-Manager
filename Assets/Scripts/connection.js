@@ -54,7 +54,6 @@ Database.prototype.update = function () {
 }
 
 Database.prototype.delete = async function (id, table) {
-    console.log("deleting employee ID: ", id);
     await query("DELETE FROM ?? WHERE id = ?", [table, id], (err, res) => {
         if(err) throw err;
     })

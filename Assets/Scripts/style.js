@@ -5,6 +5,10 @@ exports.question = (text) => {
     return chalk.bold.italic.yellow(text);
 }
 
+exports.confirm = (text) => {
+    return chalk.bold.italic.red(text);
+}
+
 exports.clear = () => {
     const blank = '\n'.repeat(process.stdout.rows)
     console.log(blank)
