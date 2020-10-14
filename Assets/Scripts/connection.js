@@ -37,8 +37,8 @@ Database.prototype.createDepartment = async function (department_name){
     });
 }
 
-Database.prototype.createRole = async function (title){
-    await asyncQuery("INSERT INTO roles (title) VALUES (?)", [title])
+Database.prototype.createRole = async function (title, salary, department_id){
+    await asyncQuery("INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)", [title])
     .then(res => {
 
     }).catch(err => {
@@ -117,8 +117,14 @@ Database.prototype.logAll = async function () {
     });
 }
 
-Database.prototype.update = function () {
-    
+Database.prototype.update = async function (table, id, property, newValue) {
+    let query = `UPDATE ?? SET ?? = ? WHERE id = ?;`;
+    await asyncQuery(query, [table, property, newValue, id])
+    .then (res => {
+        
+    }).catch(err => {
+        console.error(err);
+    })
 }
 
 Database.prototype.delete = async function (id, table) {

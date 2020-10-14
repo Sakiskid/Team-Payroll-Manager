@@ -310,27 +310,25 @@ async function startEmployeePrompt() {
         else if (answers.employee === "cancel") {
             startTitlePrompt();
         }
-
         else {
-
             let {employee: employeeId, modify} = answers;
             switch (modify) {
-            case "position":
-                // List positions and their department, then change employee
-            
-            case "manager":
-                // List managers in the current department, with an option to change departments
-            case "delete":
-                // Delete this employee from the database
-                if(answers.deleteConfirm === true) {
-                    Database.delete(employeeId, "employees");
-                } else {
-                    startEmployeePrompt();
-                    break;
-                }
-            case "cancel": 
-            // Cancel, go back to selecting employees
-            startEmployeePrompt();
+                case "position":
+                    Database.update("employees", employeeId, "role_id", answers.newPosition);
+                    // List positions and their department, then change employee
+                case "manager":
+                    // List managers in the current department, with an option to change departments
+                case "delete":
+                    // Delete this employee from the database
+                    if(answers.deleteConfirm === true) {
+                        Database.delete(employeeId, "employees");
+                    } else {
+                        startEmployeePrompt();
+                        break;
+                    }
+                case "cancel": 
+                // Cancel, go back to selecting employees
+                startEmployeePrompt();
             }
         }
     });
