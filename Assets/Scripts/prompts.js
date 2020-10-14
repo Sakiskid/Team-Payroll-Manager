@@ -122,7 +122,7 @@ const positionPrompt = [
 async function startEmployeePrompt() {
     await inquirer.prompt(employeePrompt)
     .then(answers => {
-        let employeeId, modify = answers;
+        let {employee: employeeId, modify} = answers;
         switch (modify) {
             case "position": 
                 // List positions and their department, then change employee
@@ -130,7 +130,7 @@ async function startEmployeePrompt() {
                 // List managers in the current department, with an option to change departments
             case "delete": 
                 // Delete this employee from the database
-                connection.delete(employeeId);
+                Database.delete(employeeId);
             case "cancel": 
                 // Cancel, go back to selecting employees
         }
