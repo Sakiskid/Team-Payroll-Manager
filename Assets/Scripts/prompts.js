@@ -10,14 +10,8 @@ const titlePrompt = [
         type: "list",
         message: style.question("What would you like to do?"),
         choices: [
-            new inquirer.Separator(),
-            "Add Employee",
             "View Employees",
-            new inquirer.Separator(),
-            "Add Department",
             "View Departments",
-            new inquirer.Separator(),
-            "Add Position",
             "View Positions",
             ],
         pageSize: 16,
@@ -65,8 +59,19 @@ const employeePrompt = [
     {
         name: "employee",
         type: "list",
-        message: style.question("Please select an employee"),
-        choices: async() => { return await listEmployees(); }
+        message: () => {
+            style.clear();
+            return style.question("Please select an employee");
+        },
+        choices: async() => { 
+            let choices = []
+            choices = choices.concat(await listEmployees());
+            choices.push(new inquirer.Separator());
+            choices.push({name: "Add Employee", value: "add"});
+            choices.push({name: "<- Go Back", value: "cancel"});
+            return choices;
+        },
+        pageSize: 16,
     },  
     {
         name: "modify",
@@ -79,15 +84,20 @@ const employeePrompt = [
             {name: "DELETE", value: "delete"},
             {name: "<- Go Back", value: "cancel"},
         ],
+        when: (answers) => {
+            if(answers.employee !== "add" && answers.employee !== "cancel") return true;
+        }
     },
     {
         name: "newPosition",
+        message: style.question("Please select a position: "),
         type: "list",
         choices: async () => { return await listRoles(); },
         when: (answers) => { if (answers.modify === "position") return true; },
     }, 
     {
         name: "newManager",
+        message: style.question("Please select a manager: "),
         type: "list",
         choices: async (answers) => { return await listManagers(answers.employee); },
         when: (answers) => { if (answers.modify === "manager") return true; }
@@ -246,11 +256,20 @@ async function startNewEmployeePrompt() {
 async function startEmployeePrompt() {
     await inquirer.prompt(employeePrompt)
     .then(answers => {
-        let {employee: employeeId, modify} = answers;
-        switch (modify) {
+        if(answers.employee === "add") {
+            startNewEmployeePrompt();
+        }
+        else if (answers.employee === "cancel") {
+            startTitlePrompt();
+        }
+
+        else {
+
+            let {employee: employeeId, modify} = answers;
+            switch (modify) {
             case "position":
                 // List positions and their department, then change employee
-                
+            
             case "manager":
                 // List managers in the current department, with an option to change departments
             case "delete":
@@ -262,8 +281,9 @@ async function startEmployeePrompt() {
                     break;
                 }
             case "cancel": 
-                // Cancel, go back to selecting employees
-                startEmployeePrompt();
+            // Cancel, go back to selecting employees
+            startEmployeePrompt();
+            }
         }
     });
 }
@@ -289,21 +309,16 @@ async function startTitlePrompt () {
     await Database.logAll();
     await inquirer.prompt(titlePrompt).then(answers => {
         switch(answers.main) {
-            case "Add Employee":
-                startNewEmployeePrompt();
-                break;
             case "View Employees":
+                style.clear();
                 startEmployeePrompt();
                 break;
-            case "Add Department":
-                
-                break;
             case "View Departments":
+                style.clear();
                 startDepartmentPrompt();
                 break;
-            case "Add Position":
-                break;
             case "View Positions":
+                style.clear();
                 startPositionPrompt();
                 break;
         }

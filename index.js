@@ -17,7 +17,7 @@ Database.connection.connect(err => {
 // ANCHOR Inquiry
 
 async function init () {
-    await prompts.startTitlePrompt();
+    await prompts.startTitlePrompt;
 }
 
 init();
