@@ -106,9 +106,10 @@ Database.prototype.getManagersInDepartment = async function (departmentId) {
 Database.prototype.logAll = async function () {
     await asyncQuery(
         `SELECT employees.first_name, employees.last_name, roles.title, roles.salary, departments.department_name
-            FROM employees INNER JOIN roles 
-            ON employees.role_id = roles.id 
-            INNER JOIN departments ON roles.department_id = departments.id;`
+        FROM employees 
+        LEFT JOIN roles ON employees.role_id = roles.id
+        LEFT JOIN departments ON roles.department_id = departments.id;
+        `
     ).then(res => {
             let formatted = convertSqlDataToFormattedObject(res);
             console.table(formatted);
@@ -129,6 +130,16 @@ Database.prototype.update = async function (table, id, property, newValue) {
 
 Database.prototype.delete = async function (id, table) {
     await asyncQuery("DELETE FROM ?? WHERE id = ?", [table, id], (err, res) => {
+        if(err) throw err;
+    })
+}
+
+Database.prototype.deleteDepartment = async function (id) {
+    await asyncQuery("DELETE FROM departments WHERE id = ?", [id])
+    .then(() => {
+        asyncQuery("DELETE FROM roles WHERE department_id = ?", [id])
+    })
+    .catch( (err) => {
         if(err) throw err;
     })
 }

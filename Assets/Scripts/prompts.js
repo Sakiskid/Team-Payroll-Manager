@@ -317,6 +317,7 @@ async function startEmployeePrompt() {
                     Database.update("employees", employeeId, "role_id", answers.newPosition);
                     // List positions and their department, then change employee
                 case "manager":
+                    Database.update("employees", employeeId, "manager_id", answers.newManager);
                     // List managers in the current department, with an option to change departments
                 case "delete":
                     // Delete this employee from the database
@@ -349,11 +350,13 @@ async function startDepartmentPrompt() {
             default:
                 switch(answers.modify) {
                     case "name":
+                        Database.update("departments", answers.department, "department_name", answers.newName);
                         break;
                     case "budget":
+                        // TODO add read budget
                         break;
                     case "delete":
-                        Database.delete(answers.department, "departments");
+                        Database.deleteDepartment(answers.department);
                         break;
                     case "cancel":
                         break;
@@ -387,10 +390,13 @@ async function startPositionPrompt() {
             default:
                 switch(answers.modify) {
                     case "name":
+                        Database.update("roles", answers.position, "title", answers.newName);
                         break;
                     case "salary":
+                        Database.update("roles", answers.position, "salary", answers.newSalary);
                         break;
                     case "department":
+                        Database.update("roles", answers.position, "department_id", answers.newDepartment);
                         break;
                     case "delete":
                         Database.delete(answers.position, "roles");
