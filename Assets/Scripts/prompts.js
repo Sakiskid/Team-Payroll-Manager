@@ -29,18 +29,7 @@ const employeePrompt = [
         name: "employee",
         type: "list",
         message: style.question("Please select an employee"),
-        choices: async() => {
-            let employees = await Database.read("employees");
-            let choices = [];
-            for (let employee of employees) {
-                let newChoice = {
-                    name: employee.first_name + " " + employee.last_name,
-                    value: employee.id,
-                } 
-                choices.push(newChoice);
-            }
-            return choices;
-        }
+        choices: async() => { return await listEmployees(); }
     },  
     {
         name: "modify",
@@ -52,18 +41,22 @@ const employeePrompt = [
             {name: "Change Manager", value: "manager"},
             {name: "DELETE", value: "delete"},
             {name: "<- Go Back", value: "cancel"},
-        ]
-    },    
+        ],
+    },
+    {
+        name: "newPosition",
+        type: "list",
+        choices: async () => { return await listRoles(); },
+        when: (answers) => { if (answers.modify === "position") return true; },
+    }, 
     {
         name: "deleteConfirm",
         type: "confirm",
         message: (answers) => {
-            return style.confirm("Are you sure you want to delete ", style.confirm(answers.employee))
+            return style.confirm("Are you sure you want to delete this employee?")
         },
-        when: (answers) => {
-            if (answers.modify === "delete") return true;
-        }
-    }
+        when: (answers) => { if (answers.modify === "delete") return true; },
+    },
 ]
 
 const departmentPrompt = [
@@ -91,6 +84,16 @@ const departmentPrompt = [
             {name: "DELETE", value: "delete"},
             {name: "< Go Back", value: "cancel"},
         ]
+    },    
+    {
+        name: "deleteConfirm",
+        type: "confirm",
+        message: (answers) => {
+            return style.confirm("Are you sure you want to delete ", style.confirm(answers.department))
+        },
+        when: (answers) => {
+            if (answers.modify === "delete") return true;
+        }
     }
 ]
 
@@ -120,33 +123,47 @@ const positionPrompt = [
             {name: "DELETE", value: "delete"},
             {name: "< Go Back", value: "cancel"},
         ]
-    },
+    },    
     {
         name: "deleteConfirm",
         type: "confirm",
-        message: style.confirm("Are you sure you want to delete this?"),
+        message: (answers) => {
+            return style.confirm("Are you sure you want to delete ", style.confirm(answers.position))
+        },
         when: (answers) => {
-            if (answers.positionChosen === "delete") return true;
+            if (answers.modify === "delete") return true;
         }
     }
 ]
-
-const confirmPrompt = {
-    name: "confirm",
-    type: "confirm",
-    message: style.confirm("Are you sure you want to delete this?")
-}
-
-//
 
 //
 // Functions
 //
 
-async function confirm() {
-    let answers = await inquirer.prompt(confirmPrompt);
-    if(answers.confirm === true) {return true;}
-    else if (answers.confirm === false) {return false;}
+async function listEmployees() {
+    let employees = await Database.read("employees");
+    let choices = [];
+    for (let employee of employees) {
+        let newChoice = {
+            name: employee.first_name + " " + employee.last_name,
+            value: employee.id,
+        }
+        choices.push(newChoice);
+    }
+    return choices;
+}
+
+async function listRoles() {
+    let roles = await Database.read("roles");
+    let choices = [];
+    for (let role of roles) {
+        let newChoice = {
+            name: role.title,
+            value: role.id,
+        }
+        choices.push(newChoice);
+    }
+    return choices;
 }
 
 async function startEmployeePrompt() {
@@ -156,6 +173,7 @@ async function startEmployeePrompt() {
         switch (modify) {
             case "position":
                 // List positions and their department, then change employee
+                
             case "manager":
                 // List managers in the current department, with an option to change departments
             case "delete":

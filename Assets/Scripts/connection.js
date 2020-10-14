@@ -24,7 +24,7 @@ Database.prototype.create = function () {
 
 Database.prototype.read = async function (table) {
     let result;
-    await query("SELECT * FROM " + table)
+    await query("SELECT * FROM ??", [table])
         .then((res) => {
             result = res;
         })
