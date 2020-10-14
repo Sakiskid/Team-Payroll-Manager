@@ -112,23 +112,31 @@ const employeePrompt = [
     },
 ]
 
+const newDepartmentPrompt = [
+    {
+        name: "department_name",
+        type: "input",
+        message: "Please input department's name: ",
+    }
+]
+
 const departmentPrompt = [
     {
         name: "department",
         type: "list",
         message: style.question("Please select a department"),
+        pageSize: 16,
         choices: async() => {
-            let departments = await Database.read("departments");
-            let choices = [];
-            for (let department of departments) {
-                let newChoice = department.department_name;
-                choices.push(newChoice);
-            }
-            return choices;
+            let choices = []
+            choices = choices.concat(await listDepartments());
+            choices.push(new inquirer.Separator());
+            choices.push({name: "Add Department", value: "add"});
+            choices.push({name: "<- Go Back", value: "cancel"});
+            return choices;            
         }
     },
     {
-        name: "departmentChosen",
+        name: "modify",
         type: "list",
         message: style.question("What would you like to do with this department?"),
         choices: [
@@ -136,7 +144,10 @@ const departmentPrompt = [
             {name: "View Budget", value: "budget"},
             {name: "DELETE", value: "delete"},
             {name: "< Go Back", value: "cancel"},
-        ]
+        ],
+        when: (answers) => {
+            if(answers.department !== "add" && answers.department !== "cancel") return true;
+        }
     },    
     {
         name: "deleteConfirm",
@@ -150,23 +161,44 @@ const departmentPrompt = [
     }
 ]
 
+const newPositionPrompt = [
+    {
+        name: "title",
+        type: "input",
+        message: "Please input positions's name: ",
+    },
+    {
+        name: "salary",
+        type: "number",
+        message: "Please input position's salary: ",
+    },
+    {
+        name: "department_id",
+        type: "list",
+        message: "Please select which department this position is in: ",
+        choices: async () => {
+            return await listDepartments();
+        }
+    }
+]
+
 const positionPrompt = [
     {
         name: "position",
         type: "list",
         message: style.question("Please select a position: "),
+        pageSize: 16,
         choices: async() => {
-            let positions = await Database.read("roles");
-            let choices = [];
-            for (let position of positions) {
-                let newChoice = position.title;
-                choices.push(newChoice);
-            }
+            let choices = []
+            choices = choices.concat(await listRoles());
+            choices.push(new inquirer.Separator());
+            choices.push({name: "Add Position", value: "add"});
+            choices.push({name: "<- Go Back", value: "cancel"});
             return choices;
         }
     },
     {
-        name: "positionChosen",
+        name: "modify",
         type: "list",
         message: style.question("What would you like to do with this position?"),
         choices: [
@@ -175,7 +207,10 @@ const positionPrompt = [
             {name: "Change Department", value: "department"},
             {name: "DELETE", value: "delete"},
             {name: "< Go Back", value: "cancel"},
-        ]
+        ],
+        when: (answers) => {
+            if(answers.position !== "add" && answers.position !== "cancel") return true;
+        },
     },    
     {
         name: "deleteConfirm",
@@ -226,6 +261,19 @@ async function listRolesWithDepartments() {
         let newChoice = {
             name: role.department_name + " || " + role.title,
             value: role.id,
+        }
+        choices.push(newChoice);
+    }
+    return choices;
+}
+
+async function listDepartments() {
+    let departments = await Database.read("departments");
+    let choices = [];
+    for(let department of departments) {
+        let newChoice = {
+            name: department.department_name,
+            value: department.id
         }
         choices.push(newChoice);
     }
@@ -293,14 +341,78 @@ async function startDepartmentPrompt() {
     // and list the number of employees plus the combined budget
     await inquirer.prompt(departmentPrompt)
     .then(answers => {
+        switch(answers.department) {
+            case "add":
+                startNewDepartmentPrompt();
+                break;
+            case "cancel":
+                startTitlePrompt();
+                break;
+            default:
+                switch(answers.modify) {
+                    case "name":
+                        break;
+                    case "budget":
+                        break;
+                    case "delete":
+                        Database.delete(answers.department, "departments");
+                        break;
+                    case "cancel":
+                        break;
+                }
+                startDepartmentPrompt();
+                break;
+        }
+    });
+}
 
+async function startNewDepartmentPrompt() {
+    await inquirer.prompt(newDepartmentPrompt)
+    .then(answers => {
+        Database.createDepartment(answers.department_name)
+    })
+    .then( () => {
+        startDepartmentPrompt();
     });
 }
 
 async function startPositionPrompt() {
     await inquirer.prompt(positionPrompt)
     .then(answers => {
+        switch(answers.position) {
+            case "add":
+                startNewPositionPrompt();
+                break;
+            case "cancel":
+                startTitlePrompt();
+                break;
+            default:
+                switch(answers.modify) {
+                    case "name":
+                        break;
+                    case "salary":
+                        break;
+                    case "department":
+                        break;
+                    case "delete":
+                        Database.delete(answers.position, "roles");
+                        break;
+                    case "cancel":
+                        break;
+                }
+                startPositionPrompt();
+                break;
+        }
+    });
+}
 
+async function startNewPositionPrompt() {
+    await inquirer.prompt(newPositionPrompt)
+    .then(answers => {
+        Database.createRole(answers.title, answers.salary, answers.department_id);
+    })
+    .then( () => {
+        startPositionPrompt();
     });
 }
 

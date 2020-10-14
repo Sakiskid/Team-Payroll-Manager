@@ -21,11 +21,29 @@ const asyncQuery = util.promisify(db.connection.query.bind(db.connection));
 Database.prototype.createEmployee = async function (first_name, last_name, role_id, manager_id) {
     await asyncQuery("INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);", [first_name, last_name, role_id, manager_id])
     .then(res => {
-        result = res;
+
     })
     .catch(err => {
         console.log(err);
     })
+}
+
+Database.prototype.createDepartment = async function (department_name){
+    await asyncQuery("INSERT INTO departments (department_name) VALUES (?)", [department_name])
+    .then(res => {
+
+    }).catch(err => {
+        console.log(err);
+    });
+}
+
+Database.prototype.createRole = async function (title){
+    await asyncQuery("INSERT INTO roles (title) VALUES (?)", [title])
+    .then(res => {
+
+    }).catch(err => {
+        console.log(err);
+    });
 }
 
 Database.prototype.read = async function (table) {
@@ -70,6 +88,19 @@ Database.prototype.getDepartmentIDUsingRoleID = async function () {
     })
 }
 
+Database.prototype.getManagersInDepartment = async function (departmentId) {
+    let result;
+    let query = `SELECT employees.id
+                    FROM employees
+                    LEFT JOIN departments
+                    ON employees.`;
+    await asyncQuery(query)
+    .then(res => {
+        result = res;
+    }).catch(err => {
+        console.log(err);
+    });
+}
 
 // Log everything into a table
 Database.prototype.logAll = async function () {
